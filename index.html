@@ -1,24 +1,54 @@
 <!DOCTYPE html>
-<html>
+<html lang="hi">
 <head>
-    <title>FanCode Live Proxy Player</title>
-    <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClearKey Practice Player</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.0/shaka-player.compiled.js"></script>
+    
+    <style>
+        body { margin: 0; background: #000; font-family: Arial; }
+        #video { width: 100vw; height: 100vh; }
+        .info { position: absolute; top: 10px; left: 10px; color: white; background: rgba(0,0,0,0.6); padding: 10px; border-radius: 5px; }
+    </style>
 </head>
 <body>
 
-    <video id="my-video" class="video-js vjs-big-play-centered" controls preload="auto" width="640" height="360">
-        <!-- Maine yahan proxy link add kar diya hai taaki CORS error na aaye -->
-        <source src="https://api.allorigins.win/raw?url=https://in-mc-flive.fancode.com/mumbai/143527_english_hls_326b1a1f7d22680_1ta-di_h264/1080p.m3u8?hdntl=Expires=1782715176~_GO=Generated~acl=/mumbai/143527_english_hls_326b1a1f7d22680_1ta-di_h264/*~Signature=ARZJ1WLidpeGDdjWGb0MZ-rkqazDriY1rcxbs5rjvRydTcf2ghiI4MnKMdKrrP_vzvRSQngkse-IKj8GRqzc13SH-_sG" type="application/x-mpegURL">
-    </video>
+    <div class="info">
+        <strong>ClearKey Test Player</strong><br>
+        Status: <span id="status">Loading...</span>
+    </div>
 
-    <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
+    <video id="video" controls autoplay></video>
 
     <script>
-        var player = videojs('my-video', {
-            autoplay: true,
-            muted: true,
-            liveui: true
-        });
+        const manifestUri = 'https://bitmovin-a.akamaihd.net/content/art-of-motion_drm/mpd-progressive/clear-key.mpd';
+
+        async function initPlayer() {
+            const video = document.getElementById('video');
+            const player = new shaka.Player(video);
+            const status = document.getElementById('status');
+
+            // ClearKey Configuration
+            player.configure({
+                drm: {
+                    clearKeys: {
+                        '1c2a3b4d5e6f7a8b9c0d1e2f3a4b5c6d': 'd1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6'
+                    }
+                }
+            });
+
+            try {
+                await player.load(manifestUri);
+                status.textContent = "Playing Successfully ✓";
+                console.log("ClearKey Stream Started!");
+            } catch (error) {
+                status.textContent = "Failed ✗";
+                console.error("Error:", error);
+            }
+        }
+
+        window.onload = initPlayer;
     </script>
 </body>
 </html>
